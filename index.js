@@ -39,7 +39,7 @@ request.post({
 
     request.post({
       url: serviceUrl,
-      formData: JSON.stringify(payload)
+      formData: payload
     }, function(err, resp, body) {
       console.log('API request made...', body);
     });
