@@ -15,33 +15,34 @@ request.post({
   } else {
 
     agolToken = JSON.parse(body).access_token;
-    console.log('obtained token...', agolToken);
 
-    var serviceUrl = 'https://services1.arcgis.com/CHRAD8xHGZXuIQsJ/arcgis/rest/services/Incident_Monitor_Pin/FeatureServer/0/addFeatures?token=' + agolToken;
-    console.log('service url', serviceUrl);
+    //var serviceUrl = 'http://services1.arcgis.com/CHRAD8xHGZXuIQsJ/arcgis/rest/services/Incident_Monitor_Pin/FeatureServer/0/addFeatures';
+    var serviceUrl = 'https://services1.arcgis.com/CHRAD8xHGZXuIQsJ/arcgis/rest/services/Incident_Monitor_Pin_Test/FeatureServer/0/addFeatures'
 
-    var payload = {
-      f: "json",
-      features: [
-        {
-          attributes : {
-            NAME: 'Test Fire',
-            STATUS: 5
-          },
-          geometry : {
-            x : -122.61806,
-            y : 38.43288
-          }
+    var payload = [
+      {
+        "attributes" : {
+          "NAME": "Test Fire"
+        },
+        "geometry" : {
+          "x" : 122.61806,
+          "y" : 38.43288
         }
-      ]
-    };
-    console.log('payload', payload)
+      }
+    ];
 
     request.post({
       url: serviceUrl,
-      formData: payload
-    }, function(err, resp, body) {
-      console.log('API request made...', body);
+      method: 'POST',
+      json: true,
+      form: {
+       f: 'json',
+       token: agolToken,
+       features: payload
+      }
+    }, function(error, response, body) {
+      console.log(body);
     });
+
   }
 });
