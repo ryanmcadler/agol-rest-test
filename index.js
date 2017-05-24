@@ -1,48 +1,32 @@
 var request = require('request');
 
-request.post({
-  url: 'https://www.arcgis.com/sharing/rest/oauth2/token/',
-  formData: {
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET,
-    grant_type: 'client_credentials'
-  }
-}, function(err, resp, body) {
-  var agolToken = null;
+var tokenURL = "https://www.arcgis.com/sharing/rest/oauth2/token/";
+var tokenParams = {
+  client_id: 'B1yWH9wx7WwscH8J',
+  client_secret: '9aed305482a14ad08a7ea770d8dc32dc',
+  grant_type: 'client_credentials'
+};
 
-  if (err !== null) {
-    console.log('Could not obtain token', err);
-  } else {
+var applyEditsURL = 'https://services1.arcgis.com/CHRAD8xHGZXuIQsJ/arcgis/rest/services/Incident_Monitor_Pin_Test/FeatureServer/0/applyEdits'
+var edits = "[{'geometry':{'x':-122.61806,'y':38.43288},'attributes':{'NAME':'Node test fire 2'}}]";
 
-    agolToken = JSON.parse(body).access_token;
+request.post({ url: tokenURL, formData: tokenParams }, function(err, res, body) {
 
-    //var serviceUrl = 'http://services1.arcgis.com/CHRAD8xHGZXuIQsJ/arcgis/rest/services/Incident_Monitor_Pin/FeatureServer/0/addFeatures';
-    var serviceUrl = 'https://services1.arcgis.com/CHRAD8xHGZXuIQsJ/arcgis/rest/services/Incident_Monitor_Pin_Test/FeatureServer/0/addFeatures'
-
-    var payload = [
-      {
-        "attributes" : {
-          "NAME": "Test Fire"
-        },
-        "geometry" : {
-          "x" : 122.61806,
-          "y" : 38.43288
-        }
-      }
-    ];
-
-    request.post({
-      url: serviceUrl,
-      method: 'POST',
-      json: true,
+  if(!err && res.statusCode == 200) {
+    var response = JSON.parse(body);
+    var params = {
       form: {
-       f: 'json',
-       token: agolToken,
-       features: payload
+        adds: edits,
+        token: response.access_token,
+        f: 'json'
       }
-    }, function(error, response, body) {
-      console.log(body);
-    });
+    };
 
+    // make request to ArcGIS Online...
+    request.post(applyEditsURL, params, function(err1, res1, body1) {
+      if(!err && res.statusCode == 200) {
+        return JSON.parse(body1);
+      }
+    });
   }
 });
